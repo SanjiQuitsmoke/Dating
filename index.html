@@ -3,103 +3,156 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>The Synthesis | Global Matchmaking</title>
+    <title>The Synthesis | Portal</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;1,700&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/lucide@latest"></script>
     <style>
         :root { --gold: #d4af37; --deep-navy: #0f172a; }
-        body { font-family: 'Inter', sans-serif; background-color: #f8f7f4; color: var(--deep-navy); scroll-behavior: smooth; }
+        body { font-family: 'Inter', sans-serif; background-color: #fbfbfb; color: var(--deep-navy); scroll-behavior: smooth; }
         .serif { font-family: 'Playfair Display', serif; }
-        .glass { background: rgba(255, 255, 255, 0.7); backdrop-filter: blur(12px); border-bottom: 1px solid rgba(0,0,0,0.05); }
-        .nav-offset { top: 56px; }
-        @media (max-width: 640px) { .nav-offset { top: 52px; } }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
-        .animate-in { animation: fadeIn 0.3s ease-out forwards; }
-        .success-checkmark { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; text-align: center; }
+        .glass { background: rgba(255, 255, 255, 0.8); backdrop-filter: blur(20px); border-bottom: 1px solid rgba(0,0,0,0.05); }
+        .search-container:focus-within { box-shadow: 0 0 0 2px #0f172a; }
+        @keyframes slideIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .animate-slide { animation: slideIn 0.4s ease-out forwards; }
+        .profile-gradient { background: linear-gradient(180deg, rgba(0,0,0,0) 0%, rgba(0,0,0,0.8) 100%); }
     </style>
 </head>
 <body class="antialiased">
 
-<!-- AD BANNER -->
-<div class="fixed top-0 w-full z-[60] bg-amber-500 text-stone-900 py-2 px-4 text-center shadow-md">
-    <p class="text-[10px] sm:text-xs font-black uppercase tracking-[0.2em]">Free Global Service | Ad-Supported Protocol</p>
-</div>
+<!-- GLOBAL NAVIGATION -->
+<nav class="fixed top-0 w-full z-50 glass px-6 py-4 flex flex-col md:flex-row justify-between items-center gap-4">
+    <div class="text-2xl font-bold serif italic cursor-pointer" onclick="showView('home')">The Synthesis.</div>
+    
+    <!-- SEARCH BAR (Visible when logged in) -->
+    <div id="searchBar" class="hidden w-full max-w-xl relative">
+        <div class="search-container flex items-center bg-stone-100 rounded-full px-6 py-2 transition-all">
+            <i data-lucide="search" class="w-4 h-4 text-stone-400 mr-3"></i>
+            <input type="text" placeholder="Search curated members by name or interest..." class="bg-transparent w-full outline-none text-sm py-1">
+        </div>
+    </div>
 
-<!-- NAV -->
-<nav class="fixed w-full z-50 glass px-6 py-4 flex justify-between items-center nav-offset">
-    <div class="text-xl md:text-2xl font-bold serif italic tracking-tight">The Synthesis.</div>
-    <button onclick="toggleModal()" class="bg-stone-900 text-white px-6 py-2 rounded-full text-xs font-bold hover:bg-stone-700 transition shadow-lg">JOIN</button>
+    <div class="flex items-center gap-6">
+        <button id="msgBtn" class="hidden text-stone-600 hover:text-stone-900 relative">
+            <i data-lucide="message-square"></i>
+            <span class="absolute -top-1 -right-1 w-2 h-2 bg-amber-500 rounded-full"></span>
+        </button>
+        <button id="profileNavBtn" onclick="showView('onboarding')" class="bg-stone-900 text-white px-6 py-2 rounded-full text-xs font-bold hover:bg-stone-700 transition">JOIN</button>
+    </div>
 </nav>
 
-<!-- HERO -->
-<section class="relative min-h-screen flex items-center justify-center bg-stone-900 text-center px-6 pt-20 overflow-hidden">
-    <img src="https://images.unsplash.com/photo-1511632765486-a01980e01a18?auto=format&fit=crop&q=80&w=2000" class="absolute inset-0 w-full h-full object-cover opacity-30 scale-105 transition-transform duration-1000">
-    <div class="relative z-20 max-w-4xl">
-        <h1 class="text-5xl md:text-8xl font-bold text-white mb-6 serif italic leading-tight animate-in">Unity Without Borders.</h1>
-        <p class="text-lg md:text-xl text-stone-300 mb-10 max-w-xl mx-auto font-light leading-relaxed">High-value matchmaking bridging hearts in Ukraine, USA, Japan, and India.</p>
-        <button onclick="toggleModal()" class="bg-white text-stone-900 px-10 py-4 rounded-full font-bold hover:scale-105 transition shadow-2xl">Start Free Journey</button>
+<!-- MAIN CONTENT WRAPPER -->
+<main class="pt-32 pb-20 px-6 max-w-7xl mx-auto">
+    
+    <!-- VIEW: HERO/HOME -->
+    <div id="view-home" class="view block text-center py-20 animate-slide">
+        <h1 class="text-5xl md:text-8xl font-bold serif italic mb-8">Synchronize with the World.</h1>
+        <p class="text-lg text-stone-500 max-w-xl mx-auto mb-12">An encrypted matchmaking protocol connecting the cultural elites of Ukraine, India, USA, and Japan.</p>
+        <button onclick="showView('onboarding')" class="bg-stone-900 text-white px-12 py-5 rounded-full font-bold shadow-2xl hover:scale-105 transition">ENTER THE PORTAL</button>
     </div>
-</section>
 
-<!-- MODAL -->
-<div id="joinModal" class="fixed inset-0 z-[100] hidden flex items-center justify-center p-4">
-    <div class="absolute inset-0 bg-stone-900/95 backdrop-blur-md" onclick="toggleModal()"></div>
-    <div class="relative bg-white w-full max-w-lg rounded-[2.5rem] shadow-2xl p-8 md:p-12 animate-in overflow-hidden min-h-[500px]">
-        <div id="modalContent">
-            <div class="flex justify-between items-start mb-6">
-                <h2 class="text-3xl font-bold serif italic text-stone-900">Join Synthesis</h2>
-                <button onclick="toggleModal()" class="text-stone-300 hover:text-stone-900 transition-colors"><i data-lucide="x"></i></button>
-            </div>
-            
-            <div id="statusMessage" class="hidden mb-6 p-4 rounded-2xl text-sm font-medium border animate-in"></div>
-            
-            <form id="onboardingForm" class="space-y-5">
-                <div>
-                    <label class="text-[10px] font-bold text-stone-400 uppercase tracking-widest ml-1 mb-2 block">Full Legal Name</label>
-                    <input type="text" id="userName" placeholder="Name as per ID" class="w-full px-6 py-4 rounded-2xl border border-stone-100 bg-stone-50 focus:ring-2 focus:ring-amber-500 outline-none transition" required>
-                </div>
-                <div>
-                    <label class="text-[10px] font-bold text-stone-400 uppercase tracking-widest ml-1 mb-2 block">Your Region</label>
-                    <select id="userRegion" class="w-full px-6 py-4 rounded-2xl border border-stone-100 bg-stone-50 focus:ring-2 focus:ring-amber-500 outline-none transition" required>
-                        <option value="">Select Region</option>
-                        <option value="Ukraine">Ukraine</option>
-                        <option value="United States">United States</option>
-                        <option value="Japan">Japan</option>
-                        <option value="India">India</option>
-                    </select>
-                </div>
-                <button type="submit" id="submitBtn" class="w-full py-5 bg-stone-900 text-white rounded-2xl font-bold hover:bg-stone-800 transition shadow-xl">CREATE PROFILE</button>
-                
-                <div class="relative py-2 flex items-center">
-                    <div class="flex-grow border-t border-stone-100"></div>
-                    <span class="px-4 text-[10px] font-bold text-stone-300 tracking-[0.2em]">OR SECURE VERIFY</span>
-                    <div class="flex-grow border-t border-stone-100"></div>
-                </div>
-
-                <button type="button" id="googleSignInBtn" class="w-full py-4 border-2 border-stone-100 rounded-2xl font-bold flex items-center justify-center gap-3 text-stone-700 hover:bg-stone-50 transition">
-                    <svg class="w-5 h-5" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
-                    Sign in with Google
-                </button>
-            </form>
+    <!-- VIEW: ONBOARDING / LOGIN -->
+    <div id="view-onboarding" class="view hidden max-w-lg mx-auto bg-white p-10 rounded-[3rem] shadow-xl border border-stone-100 animate-slide">
+        <div class="text-center mb-8">
+            <h2 class="text-3xl font-bold serif italic">Initialize Identity</h2>
+            <p class="text-stone-400 text-xs mt-2 font-bold tracking-widest uppercase">Protocol Access Phase</p>
         </div>
         
-        <!-- Success Screen -->
-        <div id="successContent" class="hidden success-checkmark animate-in">
-            <div class="bg-green-100 p-6 rounded-full mb-6">
-                <i data-lucide="check-circle" class="w-16 h-16 text-green-600"></i>
+        <div id="authStatus" class="hidden mb-6 p-4 rounded-2xl text-xs font-bold bg-amber-50 text-amber-700 border border-amber-100"></div>
+
+        <button id="googleBtn" class="w-full py-4 border-2 border-stone-100 rounded-2xl font-bold flex items-center justify-center gap-3 text-stone-700 hover:bg-stone-50 transition mb-8">
+            <svg class="w-5 h-5" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+            Verify with Google
+        </button>
+
+        <form id="onboardingForm" class="space-y-4">
+            <input type="text" id="userName" placeholder="Full Name" class="w-full px-6 py-4 rounded-2xl border border-stone-100 bg-stone-50 outline-none" required>
+            <select id="userRegion" class="w-full px-6 py-4 rounded-2xl border border-stone-100 bg-stone-50 outline-none" required>
+                <option value="">Select Region</option>
+                <option value="Ukraine">Ukraine</option>
+                <option value="USA">United States</option>
+                <option value="Japan">Japan</option>
+                <option value="India">India</option>
+            </select>
+            <div class="p-4 border border-dashed border-stone-200 rounded-2xl text-center cursor-pointer hover:bg-stone-50">
+                <i data-lucide="camera" class="mx-auto mb-2 text-stone-400"></i>
+                <p class="text-[10px] font-bold text-stone-400 uppercase">Upload Verification Photo</p>
             </div>
-            <h2 class="text-3xl font-bold serif italic text-stone-900 mb-4">Welcome to Synthesis</h2>
-            <p class="text-stone-500 max-w-xs mx-auto">Your profile has been synchronized. Our matchmakers will reach out via the secure protocol shortly.</p>
-            <button onclick="toggleModal()" class="mt-8 px-8 py-3 border border-stone-200 rounded-full font-bold text-stone-600 hover:bg-stone-50">Close</button>
+            <button type="submit" class="w-full py-5 bg-stone-900 text-white rounded-2xl font-bold shadow-lg">FINALIZE PROFILE</button>
+        </form>
+    </div>
+
+    <!-- VIEW: DISCOVER PORTAL (AFTER LOGIN) -->
+    <div id="view-portal" class="view hidden animate-slide">
+        <div class="flex justify-between items-end mb-10">
+            <div>
+                <h2 class="text-4xl font-bold serif italic">Global Discoveries</h2>
+                <p class="text-stone-400 font-medium">Verified members in your synchronized regions.</p>
+            </div>
+            <div class="flex gap-2">
+                <button class="p-2 bg-stone-100 rounded-lg"><i data-lucide="sliders-horizontal" class="w-4 h-4"></i></button>
+            </div>
+        </div>
+
+        <!-- GRID OF PROFILES -->
+        <div id="memberGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+            <!-- Mock profiles -->
+            <div class="group relative aspect-[3/4] rounded-[2.5rem] overflow-hidden bg-stone-200 shadow-xl cursor-pointer">
+                <img src="https://images.unsplash.com/photo-1524504388940-b1c1722653e1?auto=format&fit=crop&q=80&w=800" class="w-full h-full object-cover group-hover:scale-105 transition duration-700">
+                <div class="absolute inset-0 profile-gradient flex flex-col justify-end p-8 text-white">
+                    <span class="text-[10px] font-bold tracking-widest uppercase mb-2 opacity-80">Kyiv, Ukraine</span>
+                    <h3 class="text-2xl font-bold serif italic">Olena, 24</h3>
+                    <div class="flex gap-2 mt-3">
+                        <span class="bg-white/20 px-3 py-1 rounded-full text-[10px] font-bold">Art</span>
+                        <span class="bg-white/20 px-3 py-1 rounded-full text-[10px] font-bold">Philosophy</span>
+                    </div>
+                </div>
+                <div class="absolute top-6 right-6 flex flex-col gap-2 opacity-0 group-hover:opacity-100 transition-all transform translate-y-4 group-hover:translate-y-0">
+                    <button class="bg-white text-stone-900 p-3 rounded-full shadow-lg"><i data-lucide="message-circle" class="w-5 h-5"></i></button>
+                    <button class="bg-white text-stone-900 p-3 rounded-full shadow-lg"><i data-lucide="heart" class="w-5 h-5"></i></button>
+                </div>
+            </div>
+
+            <div class="group relative aspect-[3/4] rounded-[2.5rem] overflow-hidden bg-stone-200 shadow-xl cursor-pointer">
+                <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=800" class="w-full h-full object-cover group-hover:scale-105 transition duration-700">
+                <div class="absolute inset-0 profile-gradient flex flex-col justify-end p-8 text-white">
+                    <span class="text-[10px] font-bold tracking-widest uppercase mb-2 opacity-80">Tokyo, Japan</span>
+                    <h3 class="text-2xl font-bold serif italic">Kenji, 29</h3>
+                    <div class="flex gap-2 mt-3">
+                        <span class="bg-white/20 px-3 py-1 rounded-full text-[10px] font-bold">Tech</span>
+                        <span class="bg-white/20 px-3 py-1 rounded-full text-[10px] font-bold">Travel</span>
+                    </div>
+                </div>
+                <div class="absolute top-6 right-6 flex flex-col gap-2 opacity-0 group-hover:opacity-100 transition-all transform translate-y-4 group-hover:translate-y-0">
+                    <button class="bg-white text-stone-900 p-3 rounded-full shadow-lg"><i data-lucide="message-circle" class="w-5 h-5"></i></button>
+                    <button class="bg-white text-stone-900 p-3 rounded-full shadow-lg"><i data-lucide="heart" class="w-5 h-5"></i></button>
+                </div>
+            </div>
+
+            <div class="group relative aspect-[3/4] rounded-[2.5rem] overflow-hidden bg-stone-200 shadow-xl cursor-pointer">
+                <img src="https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?auto=format&fit=crop&q=80&w=800" class="w-full h-full object-cover group-hover:scale-105 transition duration-700">
+                <div class="absolute inset-0 profile-gradient flex flex-col justify-end p-8 text-white">
+                    <span class="text-[10px] font-bold tracking-widest uppercase mb-2 opacity-80">Mumbai, India</span>
+                    <h3 class="text-2xl font-bold serif italic">Ishani, 27</h3>
+                    <div class="flex gap-2 mt-3">
+                        <span class="bg-white/20 px-3 py-1 rounded-full text-[10px] font-bold">Dance</span>
+                        <span class="bg-white/20 px-3 py-1 rounded-full text-[10px] font-bold">Business</span>
+                    </div>
+                </div>
+                <div class="absolute top-6 right-6 flex flex-col gap-2 opacity-0 group-hover:opacity-100 transition-all transform translate-y-4 group-hover:translate-y-0">
+                    <button class="bg-white text-stone-900 p-3 rounded-full shadow-lg"><i data-lucide="message-circle" class="w-5 h-5"></i></button>
+                    <button class="bg-white text-stone-900 p-3 rounded-full shadow-lg"><i data-lucide="heart" class="w-5 h-5"></i></button>
+                </div>
+            </div>
         </div>
     </div>
-</div>
+
+</main>
 
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-    import { getAuth, signInAnonymously, GoogleAuthProvider, signInWithPopup, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-    import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+    import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+    import { getFirestore, collection, addDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
     const firebaseConfig = {
         apiKey: "AIzaSyAyyZxHPigMrdNPnfvMTTRVWKSQ1Bkh4Tc",
@@ -115,80 +168,73 @@
     const auth = getAuth(app);
     const db = getFirestore(app);
 
-    const statusEl = document.getElementById('statusMessage');
-    const googleBtn = document.getElementById('googleSignInBtn');
-    const nameInput = document.getElementById('userName');
-    const modalContent = document.getElementById('modalContent');
-    const successContent = document.getElementById('successContent');
-    
-    lucide.createIcons();
+    // Navigation System
+    window.showView = (viewName) => {
+        document.querySelectorAll('.view').forEach(v => v.classList.add('hidden'));
+        const active = document.getElementById(`view-${viewName}`);
+        if(active) active.classList.remove('hidden');
+    };
 
-    window.toggleModal = () => {
-        const modal = document.getElementById('joinModal');
-        modal.classList.toggle('hidden');
-        if (modal.classList.contains('hidden')) {
-            // Reset for next time
-            statusEl.classList.add('hidden');
-            modalContent.classList.remove('hidden');
-            successContent.classList.add('hidden');
+    // UI Updates
+    const toggleLoggedInUI = (isLoggedIn, user = null) => {
+        const search = document.getElementById('searchBar');
+        const msgs = document.getElementById('msgBtn');
+        const navBtn = document.getElementById('profileNavBtn');
+        const nameInput = document.getElementById('userName');
+
+        if (isLoggedIn) {
+            search.classList.remove('hidden');
+            msgs.classList.remove('hidden');
+            navBtn.textContent = user.displayName?.split(' ')[0] || "PORTAL";
+            navBtn.classList.replace('bg-stone-900', 'bg-amber-500');
+            navBtn.onclick = () => showView('portal');
+            if(nameInput) nameInput.value = user.displayName;
+        } else {
+            search.classList.add('hidden');
+            msgs.classList.add('hidden');
+            navBtn.textContent = "JOIN";
+            navBtn.classList.replace('bg-amber-500', 'bg-stone-900');
+            navBtn.onclick = () => showView('onboarding');
         }
     };
 
-    function showStatus(msg, type = 'success') {
-        statusEl.textContent = msg;
-        statusEl.className = `animate-in mb-6 p-4 rounded-2xl text-sm font-medium border ${type === 'error' ? 'bg-red-50 text-red-700 border-red-100' : 'bg-amber-50 text-amber-800 border-amber-100'}`;
-        statusEl.classList.remove('hidden');
-    }
-
-    onAuthStateChanged(auth, (user) => {
-        if (user && user.displayName) {
-            nameInput.value = user.displayName;
-        }
-    });
-
-    googleBtn.addEventListener('click', async () => {
+    // Firebase Auth
+    document.getElementById('googleBtn').addEventListener('click', async () => {
         try {
             const provider = new GoogleAuthProvider();
-            const result = await signInWithPopup(auth, provider);
-            showStatus(`Authenticated as ${result.user.displayName}. Select region to finish.`, 'success');
-            nameInput.value = result.user.displayName;
-        } catch (error) {
-            console.error("Auth Error:", error);
-            showStatus(`Login failed: ${error.message}`, 'error');
+            await signInWithPopup(auth, provider);
+        } catch (err) {
+            console.error(err);
+            alert("Security Handshake Failed. Verify Authorized Domains in Firebase.");
         }
     });
 
-    document.getElementById('onboardingForm').addEventListener('submit', async (e) => {
-        e.preventDefault();
-        const submitBtn = document.getElementById('submitBtn');
-        submitBtn.disabled = true;
-        submitBtn.textContent = "SYNCHRONIZING...";
-        
-        try {
-            if (!auth.currentUser) {
-                await signInAnonymously(auth);
-            }
-            
-            await addDoc(collection(db, 'artifacts', 'dating-bdecb', 'public', 'data', 'applications'), {
-                name: nameInput.value,
-                region: document.getElementById('userRegion').value,
-                timestamp: new Date().toISOString(),
-                uid: auth.currentUser.uid,
-                email: auth.currentUser.email || 'anonymous'
-            });
-            
-            // Show success UI instead of just closing
-            modalContent.classList.add('hidden');
-            successContent.classList.remove('hidden');
-            lucide.createIcons(); // Refresh icons for success screen
-            
-        } catch (err) {
-            console.error("Firestore Error:", err);
-            showStatus("Submission failed. Ensure 'Firestore Database' is created and rules are set to public.", 'error');
-            submitBtn.disabled = false;
-            submitBtn.textContent = "CREATE PROFILE";
+    onAuthStateChanged(auth, (user) => {
+        if (user) {
+            toggleLoggedInUI(true, user);
+        } else {
+            toggleLoggedInUI(false);
         }
     });
+
+    // Form Submission
+    document.getElementById('onboardingForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        try {
+            await addDoc(collection(db, 'artifacts', 'dating-bdecb', 'public', 'data', 'users'), {
+                name: document.getElementById('userName').value,
+                region: document.getElementById('userRegion').value,
+                uid: auth.currentUser.uid,
+                timestamp: new Date().toISOString()
+            });
+            showView('portal');
+        } catch (err) {
+            console.error(err);
+            alert("Synchronization Error. Check Database Rules.");
+        }
+    });
+
+    lucide.createIcons();
 </script>
 </body>
 </html>
