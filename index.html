@@ -107,19 +107,53 @@
         </div>
 
         <div id="memberGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-            <!-- Members will be loaded here dynamically -->
              <div id="no-members-msg" class="col-span-full py-20 text-center text-stone-400 italic">
                 Scanning the portal for active identities...
              </div>
+        </div>
+    </div>
+
+    <!-- VIEW: MEMBER PROFILE (INSTAGRAM STYLE) -->
+    <div id="view-profile" class="view hidden max-w-4xl mx-auto animate-slide">
+        <div class="bg-white rounded-[3rem] shadow-xl overflow-hidden border border-stone-100">
+            <div class="h-48 bg-stone-900 relative">
+                 <button onclick="showView('portal')" class="absolute top-6 left-6 text-white hover:opacity-70"><i data-lucide="arrow-left"></i></button>
+            </div>
+            <div class="px-10 pb-10">
+                <div class="flex flex-col md:flex-row items-end -mt-20 gap-8 mb-10">
+                    <div class="w-40 h-40 rounded-full border-8 border-white bg-stone-200 overflow-hidden shadow-lg">
+                        <img id="profile-view-img" src="" class="w-full h-full object-cover">
+                    </div>
+                    <div class="flex-1 pb-4">
+                        <div class="flex flex-wrap items-center gap-4 mb-2">
+                            <h2 id="profile-view-name" class="text-3xl font-bold serif italic">Member Name</h2>
+                            <button class="px-6 py-2 bg-stone-900 text-white rounded-full text-xs font-bold">Follow</button>
+                            <button id="profile-msg-action" class="px-6 py-2 border-2 border-stone-100 rounded-full text-xs font-bold">Message</button>
+                        </div>
+                        <p id="profile-view-region" class="text-stone-400 font-bold tracking-widest uppercase text-xs">Region</p>
+                    </div>
+                </div>
+                
+                <div class="grid grid-cols-3 border-y border-stone-100 py-6 mb-10 text-center">
+                    <div><span class="block font-bold text-xl">124</span><span class="text-xs text-stone-400 uppercase font-bold tracking-tighter">Connections</span></div>
+                    <div><span class="block font-bold text-xl">1.2k</span><span class="text-xs text-stone-400 uppercase font-bold tracking-tighter">Sync Score</span></div>
+                    <div><span class="block font-bold text-xl">42</span><span class="text-xs text-stone-400 uppercase font-bold tracking-tighter">Articles</span></div>
+                </div>
+
+                <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
+                    <div class="aspect-square bg-stone-100 rounded-2xl overflow-hidden"><img src="https://images.unsplash.com/photo-1493612276216-ee3925520721?auto=format&fit=crop&q=60&w=400" class="w-full h-full object-cover opacity-50"></div>
+                    <div class="aspect-square bg-stone-100 rounded-2xl overflow-hidden"><img src="https://images.unsplash.com/photo-1516251193007-45ef944abb0c?auto=format&fit=crop&q=60&w=400" class="w-full h-full object-cover opacity-50"></div>
+                    <div class="aspect-square bg-stone-100 rounded-2xl overflow-hidden"><img src="https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?auto=format&fit=crop&q=60&w=400" class="w-full h-full object-cover opacity-50"></div>
+                </div>
+            </div>
         </div>
     </div>
 </main>
 
 <!-- CHAT SIDEBAR -->
 <div id="chat-sidebar" class="fixed top-0 right-0 h-full w-full max-w-md bg-white shadow-2xl z-[60] flex flex-col">
-    <!-- Chat Header with Profile Viewing -->
     <div class="p-6 border-b border-stone-100 flex items-center justify-between bg-stone-50">
-        <div class="flex items-center gap-4">
+        <div class="flex items-center gap-4 cursor-pointer" id="chat-header-profile">
             <div id="chat-user-img" class="w-12 h-12 rounded-full bg-stone-200 overflow-hidden">
                 <img src="" alt="" class="w-full h-full object-cover hidden">
                 <div class="w-full h-full flex items-center justify-center text-stone-400"><i data-lucide="user"></i></div>
@@ -132,14 +166,12 @@
         <button onclick="closeChat()" class="text-stone-400 hover:text-stone-900"><i data-lucide="x"></i></button>
     </div>
 
-    <!-- Chat Messages -->
     <div id="chat-messages" class="flex-1 p-6 overflow-y-auto space-y-4 bg-white">
         <div class="text-center py-10">
             <p class="text-xs text-stone-400 italic">Synchronizing secure channel...</p>
         </div>
     </div>
 
-    <!-- Chat Input -->
     <div class="p-6 border-t border-stone-100">
         <div class="flex gap-2 bg-stone-100 rounded-2xl px-4 py-2">
             <input type="text" placeholder="Type a message..." class="bg-transparent flex-1 outline-none text-sm">
@@ -151,7 +183,7 @@
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
     import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-    import { getFirestore, collection, addDoc, onSnapshot, query, limit } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+    import { getFirestore, collection, addDoc, onSnapshot, query, limit, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
     const firebaseConfig = {
         apiKey: "AIzaSyAyyZxHPigMrdNPnfvMTTRVWKSQ1Bkh4Tc",
@@ -184,11 +216,17 @@
         if(active) active.classList.remove('hidden');
     };
 
+    window.showMemberProfile = (name, region, photoUrl) => {
+        document.getElementById('profile-view-name').textContent = name;
+        document.getElementById('profile-view-region').textContent = region;
+        document.getElementById('profile-view-img').src = photoUrl;
+        document.getElementById('profile-msg-action').onclick = () => openChat(name, region, photoUrl);
+        showView('profile');
+    };
+
     window.toggleLike = (btn) => {
         btn.classList.add('animate-beat');
-        const icon = btn.querySelector('i');
         const isLiked = btn.dataset.liked === 'true';
-        
         if (!isLiked) {
             btn.classList.replace('bg-white', 'bg-red-500');
             btn.classList.replace('text-stone-900', 'text-white');
@@ -198,7 +236,6 @@
             btn.classList.replace('text-white', 'text-stone-900');
             btn.dataset.liked = 'false';
         }
-
         setTimeout(() => btn.classList.remove('animate-beat'), 300);
     };
 
@@ -212,6 +249,7 @@
         } else {
             chatImg.classList.add('hidden');
         }
+        document.getElementById('chat-header-profile').onclick = () => showMemberProfile(name, region, img);
         document.getElementById('chat-sidebar').classList.add('open');
     };
 
@@ -222,26 +260,22 @@
     const renderMembers = (users) => {
         const grid = document.getElementById('memberGrid');
         const noMsg = document.getElementById('no-members-msg');
-        
         if (users.length > 0) noMsg.classList.add('hidden');
         else noMsg.classList.remove('hidden');
 
-        // Clean up but keep the message div
         const items = grid.querySelectorAll('.member-card');
         items.forEach(i => i.remove());
 
         users.forEach(u => {
             const card = document.createElement('div');
             card.className = "member-card group relative aspect-[3/4] rounded-[2.5rem] overflow-hidden bg-stone-200 shadow-xl cursor-pointer animate-slide";
-            
-            // Random Unsplash placeholder based on "person" to ensure they look like profiles
-            const photoUrl = `https://images.unsplash.com/photo-${u.photoId || '1500648767791-00dcc994a43e'}?auto=format&fit=crop&q=80&w=800`;
+            const photoUrl = u.photoUrl || `https://images.unsplash.com/photo-${u.photoId || '1500648767791-00dcc994a43e'}?auto=format&fit=crop&q=80&w=800`;
 
             card.innerHTML = `
-                <img src="${photoUrl}" class="w-full h-full object-cover group-hover:scale-105 transition duration-700">
-                <div class="absolute inset-0 profile-gradient flex flex-col justify-end p-8 text-white">
+                <img src="${photoUrl}" class="w-full h-full object-cover group-hover:scale-105 transition duration-700" onclick="showMemberProfile('${u.name}', '${u.region}', '${photoUrl}')">
+                <div class="absolute inset-0 profile-gradient flex flex-col justify-end p-8 text-white pointer-events-none">
                     <span class="text-[10px] font-bold tracking-widest uppercase mb-2 opacity-80">Verified Member</span>
-                    <h3 class="text-2xl font-bold serif italic">${u.name}</h3>
+                    <h3 class="text-2xl font-bold serif italic" onclick="event.stopPropagation(); showMemberProfile('${u.name}', '${u.region}', '${photoUrl}')">${u.name}</h3>
                     <p class="text-[10px] opacity-60 uppercase font-bold tracking-tighter">${u.region}</p>
                 </div>
                 <div class="absolute top-6 right-6 flex flex-col gap-2 opacity-0 group-hover:opacity-100 transition-all transform translate-y-4 group-hover:translate-y-0">
@@ -271,9 +305,13 @@
         if (isLoggedIn) {
             search.classList.remove('hidden');
             msgs.classList.remove('hidden');
-            navBtn.textContent = user.displayName?.split(' ')[0].toUpperCase() || "PORTAL";
+            const firstName = user.displayName?.split(' ')[0].toUpperCase() || "PORTAL";
+            navBtn.textContent = firstName;
             navBtn.classList.replace('bg-stone-900', 'bg-amber-500');
-            navBtn.onclick = () => showView('portal');
+            // When logged in, clicking the nav button shows THEIR profile
+            navBtn.onclick = () => {
+                showMemberProfile(user.displayName || "Explorer", "Verified", user.photoURL || "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&q=80&w=800");
+            };
             if(nameInput) nameInput.value = user.displayName || "";
             loadPortalData();
         } else {
@@ -287,7 +325,21 @@
 
     document.getElementById('googleBtn').addEventListener('click', async () => {
         const provider = new GoogleAuthProvider();
-        try { await signInWithPopup(auth, provider); } catch (err) { console.error(err); }
+        try { 
+            const result = await signInWithPopup(auth, provider);
+            // After login, automatically try to save their basic info
+            const user = result.user;
+            await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'users', user.uid), {
+                name: user.displayName,
+                region: "Verified",
+                photoUrl: user.photoURL,
+                uid: user.uid,
+                timestamp: new Date().toISOString()
+            }, { merge: true });
+            showView('portal');
+        } catch (err) { 
+            console.error("Auth Error:", err); 
+        }
     });
 
     onAuthStateChanged(auth, (user) => {
@@ -300,11 +352,12 @@
         const randomPhoto = photoIds[Math.floor(Math.random() * photoIds.length)];
 
         try {
-            await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'users'), {
+            const uid = auth.currentUser?.uid || `anon-${Date.now()}`;
+            await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'users', uid), {
                 name: document.getElementById('userName').value,
                 region: document.getElementById('userRegion').value,
                 photoId: randomPhoto,
-                uid: auth.currentUser?.uid || 'anonymous',
+                uid: uid,
                 timestamp: new Date().toISOString()
             });
             showView('portal');
