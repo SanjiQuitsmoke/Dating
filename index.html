@@ -47,7 +47,7 @@
     <!-- VIEW: HERO/HOME -->
     <div id="view-home" class="view block text-center py-20 animate-slide">
         <h1 class="text-5xl md:text-8xl font-bold serif italic mb-8">Synchronize with the World.</h1>
-        <p class="text-lg text-stone-500 max-w-xl mx-auto mb-12">An encrypted matchmaking protocol connecting the cultural elites of Ukraine, India, USA, and Japan.</p>
+        <p class="text-lg text-stone-500 max-w-xl mx-auto mb-12">An encrypted matchmaking protocol connecting the cultural elites across all borders.</p>
         <button onclick="showView('onboarding')" class="bg-stone-900 text-white px-12 py-5 rounded-full font-bold shadow-2xl hover:scale-105 transition">ENTER THE PORTAL</button>
     </div>
 
@@ -67,17 +67,17 @@
 
         <form id="onboardingForm" class="space-y-4">
             <input type="text" id="userName" placeholder="Full Name" class="w-full px-6 py-4 rounded-2xl border border-stone-100 bg-stone-50 outline-none" required>
+            
             <select id="userRegion" class="w-full px-6 py-4 rounded-2xl border border-stone-100 bg-stone-50 outline-none" required>
-                <option value="">Select Region</option>
-                <option value="Ukraine">Ukraine</option>
-                <option value="USA">United States</option>
-                <option value="Japan">Japan</option>
-                <option value="India">India</option>
+                <option value="">Select Country</option>
+                <!-- Countries will be populated via JS -->
             </select>
-            <div class="p-4 border border-dashed border-stone-200 rounded-2xl text-center cursor-pointer hover:bg-stone-50">
-                <i data-lucide="camera" class="mx-auto mb-2 text-stone-400"></i>
-                <p class="text-[10px] font-bold text-stone-400 uppercase">Upload Verification Photo</p>
+
+            <div class="p-4 border border-dashed border-stone-200 rounded-2xl text-center cursor-pointer hover:bg-stone-50 group">
+                <i data-lucide="camera" class="mx-auto mb-2 text-stone-400 group-hover:text-stone-600 transition"></i>
+                <p class="text-[10px] font-bold text-stone-400 uppercase">Upload Profile Photo (Optional)</p>
             </div>
+
             <button type="submit" class="w-full py-5 bg-stone-900 text-white rounded-2xl font-bold shadow-lg">FINALIZE PROFILE</button>
         </form>
     </div>
@@ -87,7 +87,7 @@
         <div class="flex justify-between items-end mb-10">
             <div>
                 <h2 class="text-4xl font-bold serif italic">Global Discoveries</h2>
-                <p class="text-stone-400 font-medium">Verified members in your synchronized regions.</p>
+                <p class="text-stone-400 font-medium">Verified members in your synchronized network.</p>
             </div>
             <div class="flex gap-2">
                 <button class="p-2 bg-stone-100 rounded-lg"><i data-lucide="sliders-horizontal" class="w-4 h-4"></i></button>
@@ -96,11 +96,11 @@
 
         <!-- GRID OF PROFILES -->
         <div id="memberGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-            <!-- Mock profiles -->
+            <!-- Mock profiles with locations generalized -->
             <div class="group relative aspect-[3/4] rounded-[2.5rem] overflow-hidden bg-stone-200 shadow-xl cursor-pointer">
                 <img src="https://images.unsplash.com/photo-1524504388940-b1c1722653e1?auto=format&fit=crop&q=80&w=800" class="w-full h-full object-cover group-hover:scale-105 transition duration-700">
                 <div class="absolute inset-0 profile-gradient flex flex-col justify-end p-8 text-white">
-                    <span class="text-[10px] font-bold tracking-widest uppercase mb-2 opacity-80">Kyiv, Ukraine</span>
+                    <span class="text-[10px] font-bold tracking-widest uppercase mb-2 opacity-80">Verified Member</span>
                     <h3 class="text-2xl font-bold serif italic">Olena, 24</h3>
                     <div class="flex gap-2 mt-3">
                         <span class="bg-white/20 px-3 py-1 rounded-full text-[10px] font-bold">Art</span>
@@ -116,7 +116,7 @@
             <div class="group relative aspect-[3/4] rounded-[2.5rem] overflow-hidden bg-stone-200 shadow-xl cursor-pointer">
                 <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=800" class="w-full h-full object-cover group-hover:scale-105 transition duration-700">
                 <div class="absolute inset-0 profile-gradient flex flex-col justify-end p-8 text-white">
-                    <span class="text-[10px] font-bold tracking-widest uppercase mb-2 opacity-80">Tokyo, Japan</span>
+                    <span class="text-[10px] font-bold tracking-widest uppercase mb-2 opacity-80">Verified Member</span>
                     <h3 class="text-2xl font-bold serif italic">Kenji, 29</h3>
                     <div class="flex gap-2 mt-3">
                         <span class="bg-white/20 px-3 py-1 rounded-full text-[10px] font-bold">Tech</span>
@@ -132,7 +132,7 @@
             <div class="group relative aspect-[3/4] rounded-[2.5rem] overflow-hidden bg-stone-200 shadow-xl cursor-pointer">
                 <img src="https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?auto=format&fit=crop&q=80&w=800" class="w-full h-full object-cover group-hover:scale-105 transition duration-700">
                 <div class="absolute inset-0 profile-gradient flex flex-col justify-end p-8 text-white">
-                    <span class="text-[10px] font-bold tracking-widest uppercase mb-2 opacity-80">Mumbai, India</span>
+                    <span class="text-[10px] font-bold tracking-widest uppercase mb-2 opacity-80">Verified Member</span>
                     <h3 class="text-2xl font-bold serif italic">Ishani, 27</h3>
                     <div class="flex gap-2 mt-3">
                         <span class="bg-white/20 px-3 py-1 rounded-full text-[10px] font-bold">Dance</span>
@@ -167,6 +167,43 @@
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
     const db = getFirestore(app);
+
+    // Comprehensive Country List (Simplified for Demo, but sorted A-Z)
+    const countries = [
+        "Afghanistan", "Albania", "Algeria", "Andorra", "Angola", "Antigua and Barbuda", "Argentina", "Armenia", "Australia", "Austria", "Azerbaijan",
+        "Bahamas", "Bahrain", "Bangladesh", "Barbados", "Belarus", "Belgium", "Belize", "Benin", "Bhutan", "Bolivia", "Bosnia and Herzegovina", "Botswana", "Brazil", "Brunei", "Bulgaria", "Burkina Faso", "Burundi",
+        "Cabo Verde", "Cambodia", "Cameroon", "Canada", "Central African Republic", "Chad", "Chile", "China", "Colombia", "Comoros", "Congo", "Costa Rica", "Croatia", "Cuba", "Cyprus", "Czech Republic",
+        "Denmark", "Djibouti", "Dominica", "Dominican Republic",
+        "Ecuador", "Egypt", "El Salvador", "Equatorial Guinea", "Eritrea", "Estonia", "Eswatini", "Ethiopia",
+        "Fiji", "Finland", "France",
+        "Gabon", "Gambia", "Georgia", "Germany", "Ghana", "Greece", "Grenada", "Guatemala", "Guinea", "Guyana",
+        "Haiti", "Honduras", "Hungary",
+        "Iceland", "India", "Indonesia", "Iran", "Iraq", "Ireland", "Israel", "Italy",
+        "Jamaica", "Japan", "Jordan",
+        "Kazakhstan", "Kenya", "Kiribati", "Korea, North", "Korea, South", "Kosovo", "Kuwait", "Kyrgyzstan",
+        "Laos", "Latvia", "Lebanon", "Lesotho", "Liberia", "Libya", "Liechtenstein", "Lithuania", "Luxembourg",
+        "Madagascar", "Malawi", "Malaysia", "Maldives", "Mali", "Malta", "Marshall Islands", "Mauritania", "Mauritius", "Mexico", "Micronesia", "Moldova", "Monaco", "Mongolia", "Montenegro", "Morocco", "Mozambique", "Myanmar",
+        "Namibia", "Nauru", "Nepal", "Netherlands", "New Zealand", "Nicaragua", "Niger", "Nigeria", "North Macedonia", "Norway",
+        "Oman",
+        "Pakistan", "Palau", "Palestine", "Panama", "Papua New Guinea", "Paraguay", "Peru", "Philippines", "Poland", "Portugal",
+        "Qatar",
+        "Romania", "Russia", "Rwanda",
+        "Saint Kitts and Nevis", "Saint Lucia", "Samoa", "San Marino", "Saudi Arabia", "Senegal", "Serbia", "Seychelles", "Sierra Leone", "Singapore", "Slovakia", "Slovenia", "Solomon Islands", "Somalia", "South Africa", "Spain", "Sri Lanka", "Sudan", "Suriname", "Sweden", "Switzerland", "Syria",
+        "Taiwan", "Tajikistan", "Tanzania", "Thailand", "Timor-Leste", "Togo", "Tonga", "Trinidad and Tobago", "Tunisia", "Turkey", "Turkmenistan", "Tuvalu",
+        "Uganda", "Ukraine", "United Arab Emirates", "United Kingdom", "United States", "Uruguay", "Uzbekistan",
+        "Vanuatu", "Vatican City", "Venezuela", "Vietnam",
+        "Yemen", "Zambia", "Zimbabwe"
+    ];
+
+    const populateCountries = () => {
+        const select = document.getElementById('userRegion');
+        countries.forEach(country => {
+            const opt = document.createElement('option');
+            opt.value = country;
+            opt.textContent = country;
+            select.appendChild(opt);
+        });
+    };
 
     // Navigation System
     window.showView = (viewName) => {
@@ -205,7 +242,6 @@
             await signInWithPopup(auth, provider);
         } catch (err) {
             console.error(err);
-            alert("Security Handshake Failed. Verify Authorized Domains in Firebase.");
         }
     });
 
@@ -224,17 +260,19 @@
             await addDoc(collection(db, 'artifacts', 'dating-bdecb', 'public', 'data', 'users'), {
                 name: document.getElementById('userName').value,
                 region: document.getElementById('userRegion').value,
-                uid: auth.currentUser.uid,
+                uid: auth.currentUser?.uid || 'anonymous',
                 timestamp: new Date().toISOString()
             });
             showView('portal');
         } catch (err) {
             console.error(err);
-            alert("Synchronization Error. Check Database Rules.");
         }
     });
 
-    lucide.createIcons();
+    window.onload = () => {
+        populateCountries();
+        lucide.createIcons();
+    };
 </script>
 </body>
 </html>
