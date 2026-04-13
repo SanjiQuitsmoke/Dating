@@ -9,13 +9,28 @@
     <script src="https://unpkg.com/lucide@latest"></script>
     <style>
         :root { --gold: #d4af37; --deep-navy: #0f172a; }
-        body { font-family: 'Inter', sans-serif; background-color: #fbfbfb; color: var(--deep-navy); scroll-behavior: smooth; }
+        body { font-family: 'Inter', sans-serif; background-color: #fbfbfb; color: var(--deep-navy); scroll-behavior: smooth; overflow-x: hidden; }
         .serif { font-family: 'Playfair Display', serif; }
         .glass { background: rgba(255, 255, 255, 0.8); backdrop-filter: blur(20px); border-bottom: 1px solid rgba(0,0,0,0.05); }
         .search-container:focus-within { box-shadow: 0 0 0 2px #0f172a; }
+        
         @keyframes slideIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         .animate-slide { animation: slideIn 0.4s ease-out forwards; }
+        
+        @keyframes heartBeat {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.4); }
+            100% { transform: scale(1); }
+        }
+        .animate-beat { animation: heartBeat 0.3s ease-out; }
+
         .profile-gradient { background: linear-gradient(180deg, rgba(0,0,0,0) 0%, rgba(0,0,0,0.8) 100%); }
+        
+        #chat-sidebar {
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            transform: translateX(100%);
+        }
+        #chat-sidebar.open { transform: translateX(0); }
     </style>
 </head>
 <body class="antialiased">
@@ -24,11 +39,11 @@
 <nav class="fixed top-0 w-full z-50 glass px-6 py-4 flex flex-col md:flex-row justify-between items-center gap-4">
     <div class="text-2xl font-bold serif italic cursor-pointer" onclick="showView('home')">The Synthesis.</div>
     
-    <!-- SEARCH BAR (Visible when logged in) -->
+    <!-- SEARCH BAR -->
     <div id="searchBar" class="hidden w-full max-w-xl relative">
         <div class="search-container flex items-center bg-stone-100 rounded-full px-6 py-2 transition-all">
             <i data-lucide="search" class="w-4 h-4 text-stone-400 mr-3"></i>
-            <input type="text" placeholder="Search curated members by name or interest..." class="bg-transparent w-full outline-none text-sm py-1">
+            <input type="text" placeholder="Search members..." class="bg-transparent w-full outline-none text-sm py-1">
         </div>
     </div>
 
@@ -58,8 +73,6 @@
             <p class="text-stone-400 text-xs mt-2 font-bold tracking-widest uppercase">Protocol Access Phase</p>
         </div>
         
-        <div id="authStatus" class="hidden mb-6 p-4 rounded-2xl text-xs font-bold bg-amber-50 text-amber-700 border border-amber-100"></div>
-
         <button id="googleBtn" class="w-full py-4 border-2 border-stone-100 rounded-2xl font-bold flex items-center justify-center gap-3 text-stone-700 hover:bg-stone-50 transition mb-8">
             <svg class="w-5 h-5" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
             Verify with Google
@@ -70,7 +83,6 @@
             
             <select id="userRegion" class="w-full px-6 py-4 rounded-2xl border border-stone-100 bg-stone-50 outline-none" required>
                 <option value="">Select Country</option>
-                <!-- Countries will be populated via JS -->
             </select>
 
             <div class="p-4 border border-dashed border-stone-200 rounded-2xl text-center cursor-pointer hover:bg-stone-50 group">
@@ -82,77 +94,64 @@
         </form>
     </div>
 
-    <!-- VIEW: DISCOVER PORTAL (AFTER LOGIN) -->
+    <!-- VIEW: DISCOVER PORTAL -->
     <div id="view-portal" class="view hidden animate-slide">
         <div class="flex justify-between items-end mb-10">
             <div>
                 <h2 class="text-4xl font-bold serif italic">Global Discoveries</h2>
-                <p class="text-stone-400 font-medium">Verified members in your synchronized network.</p>
+                <p class="text-stone-400 font-medium">Real-time synchronized members.</p>
             </div>
             <div class="flex gap-2">
                 <button class="p-2 bg-stone-100 rounded-lg"><i data-lucide="sliders-horizontal" class="w-4 h-4"></i></button>
             </div>
         </div>
 
-        <!-- GRID OF PROFILES -->
         <div id="memberGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-            <!-- Mock profiles with locations generalized -->
-            <div class="group relative aspect-[3/4] rounded-[2.5rem] overflow-hidden bg-stone-200 shadow-xl cursor-pointer">
-                <img src="https://images.unsplash.com/photo-1524504388940-b1c1722653e1?auto=format&fit=crop&q=80&w=800" class="w-full h-full object-cover group-hover:scale-105 transition duration-700">
-                <div class="absolute inset-0 profile-gradient flex flex-col justify-end p-8 text-white">
-                    <span class="text-[10px] font-bold tracking-widest uppercase mb-2 opacity-80">Verified Member</span>
-                    <h3 class="text-2xl font-bold serif italic">Olena, 24</h3>
-                    <div class="flex gap-2 mt-3">
-                        <span class="bg-white/20 px-3 py-1 rounded-full text-[10px] font-bold">Art</span>
-                        <span class="bg-white/20 px-3 py-1 rounded-full text-[10px] font-bold">Philosophy</span>
-                    </div>
-                </div>
-                <div class="absolute top-6 right-6 flex flex-col gap-2 opacity-0 group-hover:opacity-100 transition-all transform translate-y-4 group-hover:translate-y-0">
-                    <button class="bg-white text-stone-900 p-3 rounded-full shadow-lg"><i data-lucide="message-circle" class="w-5 h-5"></i></button>
-                    <button class="bg-white text-stone-900 p-3 rounded-full shadow-lg"><i data-lucide="heart" class="w-5 h-5"></i></button>
-                </div>
-            </div>
+            <!-- Members will be loaded here dynamically -->
+             <div id="no-members-msg" class="col-span-full py-20 text-center text-stone-400 italic">
+                Scanning the portal for active identities...
+             </div>
+        </div>
+    </div>
+</main>
 
-            <div class="group relative aspect-[3/4] rounded-[2.5rem] overflow-hidden bg-stone-200 shadow-xl cursor-pointer">
-                <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=800" class="w-full h-full object-cover group-hover:scale-105 transition duration-700">
-                <div class="absolute inset-0 profile-gradient flex flex-col justify-end p-8 text-white">
-                    <span class="text-[10px] font-bold tracking-widest uppercase mb-2 opacity-80">Verified Member</span>
-                    <h3 class="text-2xl font-bold serif italic">Kenji, 29</h3>
-                    <div class="flex gap-2 mt-3">
-                        <span class="bg-white/20 px-3 py-1 rounded-full text-[10px] font-bold">Tech</span>
-                        <span class="bg-white/20 px-3 py-1 rounded-full text-[10px] font-bold">Travel</span>
-                    </div>
-                </div>
-                <div class="absolute top-6 right-6 flex flex-col gap-2 opacity-0 group-hover:opacity-100 transition-all transform translate-y-4 group-hover:translate-y-0">
-                    <button class="bg-white text-stone-900 p-3 rounded-full shadow-lg"><i data-lucide="message-circle" class="w-5 h-5"></i></button>
-                    <button class="bg-white text-stone-900 p-3 rounded-full shadow-lg"><i data-lucide="heart" class="w-5 h-5"></i></button>
-                </div>
+<!-- CHAT SIDEBAR -->
+<div id="chat-sidebar" class="fixed top-0 right-0 h-full w-full max-w-md bg-white shadow-2xl z-[60] flex flex-col">
+    <!-- Chat Header with Profile Viewing -->
+    <div class="p-6 border-b border-stone-100 flex items-center justify-between bg-stone-50">
+        <div class="flex items-center gap-4">
+            <div id="chat-user-img" class="w-12 h-12 rounded-full bg-stone-200 overflow-hidden">
+                <img src="" alt="" class="w-full h-full object-cover hidden">
+                <div class="w-full h-full flex items-center justify-center text-stone-400"><i data-lucide="user"></i></div>
             </div>
+            <div>
+                <h4 id="chat-user-name" class="font-bold serif italic text-xl">Member Name</h4>
+                <p id="chat-user-region" class="text-[10px] font-bold text-stone-400 uppercase tracking-widest">Region</p>
+            </div>
+        </div>
+        <button onclick="closeChat()" class="text-stone-400 hover:text-stone-900"><i data-lucide="x"></i></button>
+    </div>
 
-            <div class="group relative aspect-[3/4] rounded-[2.5rem] overflow-hidden bg-stone-200 shadow-xl cursor-pointer">
-                <img src="https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?auto=format&fit=crop&q=80&w=800" class="w-full h-full object-cover group-hover:scale-105 transition duration-700">
-                <div class="absolute inset-0 profile-gradient flex flex-col justify-end p-8 text-white">
-                    <span class="text-[10px] font-bold tracking-widest uppercase mb-2 opacity-80">Verified Member</span>
-                    <h3 class="text-2xl font-bold serif italic">Ishani, 27</h3>
-                    <div class="flex gap-2 mt-3">
-                        <span class="bg-white/20 px-3 py-1 rounded-full text-[10px] font-bold">Dance</span>
-                        <span class="bg-white/20 px-3 py-1 rounded-full text-[10px] font-bold">Business</span>
-                    </div>
-                </div>
-                <div class="absolute top-6 right-6 flex flex-col gap-2 opacity-0 group-hover:opacity-100 transition-all transform translate-y-4 group-hover:translate-y-0">
-                    <button class="bg-white text-stone-900 p-3 rounded-full shadow-lg"><i data-lucide="message-circle" class="w-5 h-5"></i></button>
-                    <button class="bg-white text-stone-900 p-3 rounded-full shadow-lg"><i data-lucide="heart" class="w-5 h-5"></i></button>
-                </div>
-            </div>
+    <!-- Chat Messages -->
+    <div id="chat-messages" class="flex-1 p-6 overflow-y-auto space-y-4 bg-white">
+        <div class="text-center py-10">
+            <p class="text-xs text-stone-400 italic">Synchronizing secure channel...</p>
         </div>
     </div>
 
-</main>
+    <!-- Chat Input -->
+    <div class="p-6 border-t border-stone-100">
+        <div class="flex gap-2 bg-stone-100 rounded-2xl px-4 py-2">
+            <input type="text" placeholder="Type a message..." class="bg-transparent flex-1 outline-none text-sm">
+            <button class="text-stone-900"><i data-lucide="send" class="w-4 h-4"></i></button>
+        </div>
+    </div>
+</div>
 
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
     import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-    import { getFirestore, collection, addDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+    import { getFirestore, collection, addDoc, onSnapshot, query, limit } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
     const firebaseConfig = {
         apiKey: "AIzaSyAyyZxHPigMrdNPnfvMTTRVWKSQ1Bkh4Tc",
@@ -161,58 +160,108 @@
         storageBucket: "dating-bdecb.firebasestorage.app",
         messagingSenderId: "363447186588",
         appId: "1:363447186588:web:0592df67e54db6c40fe959",
-        measurementId: "G-2JBR5PKGHH"
     };
 
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
     const db = getFirestore(app);
+    const appId = 'dating-bdecb';
 
-    // Comprehensive Country List (Simplified for Demo, but sorted A-Z)
-    const countries = [
-        "Afghanistan", "Albania", "Algeria", "Andorra", "Angola", "Antigua and Barbuda", "Argentina", "Armenia", "Australia", "Austria", "Azerbaijan",
-        "Bahamas", "Bahrain", "Bangladesh", "Barbados", "Belarus", "Belgium", "Belize", "Benin", "Bhutan", "Bolivia", "Bosnia and Herzegovina", "Botswana", "Brazil", "Brunei", "Bulgaria", "Burkina Faso", "Burundi",
-        "Cabo Verde", "Cambodia", "Cameroon", "Canada", "Central African Republic", "Chad", "Chile", "China", "Colombia", "Comoros", "Congo", "Costa Rica", "Croatia", "Cuba", "Cyprus", "Czech Republic",
-        "Denmark", "Djibouti", "Dominica", "Dominican Republic",
-        "Ecuador", "Egypt", "El Salvador", "Equatorial Guinea", "Eritrea", "Estonia", "Eswatini", "Ethiopia",
-        "Fiji", "Finland", "France",
-        "Gabon", "Gambia", "Georgia", "Germany", "Ghana", "Greece", "Grenada", "Guatemala", "Guinea", "Guyana",
-        "Haiti", "Honduras", "Hungary",
-        "Iceland", "India", "Indonesia", "Iran", "Iraq", "Ireland", "Israel", "Italy",
-        "Jamaica", "Japan", "Jordan",
-        "Kazakhstan", "Kenya", "Kiribati", "Korea, North", "Korea, South", "Kosovo", "Kuwait", "Kyrgyzstan",
-        "Laos", "Latvia", "Lebanon", "Lesotho", "Liberia", "Libya", "Liechtenstein", "Lithuania", "Luxembourg",
-        "Madagascar", "Malawi", "Malaysia", "Maldives", "Mali", "Malta", "Marshall Islands", "Mauritania", "Mauritius", "Mexico", "Micronesia", "Moldova", "Monaco", "Mongolia", "Montenegro", "Morocco", "Mozambique", "Myanmar",
-        "Namibia", "Nauru", "Nepal", "Netherlands", "New Zealand", "Nicaragua", "Niger", "Nigeria", "North Macedonia", "Norway",
-        "Oman",
-        "Pakistan", "Palau", "Palestine", "Panama", "Papua New Guinea", "Paraguay", "Peru", "Philippines", "Poland", "Portugal",
-        "Qatar",
-        "Romania", "Russia", "Rwanda",
-        "Saint Kitts and Nevis", "Saint Lucia", "Samoa", "San Marino", "Saudi Arabia", "Senegal", "Serbia", "Seychelles", "Sierra Leone", "Singapore", "Slovakia", "Slovenia", "Solomon Islands", "Somalia", "South Africa", "Spain", "Sri Lanka", "Sudan", "Suriname", "Sweden", "Switzerland", "Syria",
-        "Taiwan", "Tajikistan", "Tanzania", "Thailand", "Timor-Leste", "Togo", "Tonga", "Trinidad and Tobago", "Tunisia", "Turkey", "Turkmenistan", "Tuvalu",
-        "Uganda", "Ukraine", "United Arab Emirates", "United Kingdom", "United States", "Uruguay", "Uzbekistan",
-        "Vanuatu", "Vatican City", "Venezuela", "Vietnam",
-        "Yemen", "Zambia", "Zimbabwe"
-    ];
+    const countries = ["Afghanistan", "Albania", "Algeria", "Andorra", "Angola", "Antigua and Barbuda", "Argentina", "Armenia", "Australia", "Austria", "Azerbaijan", "Bahamas", "Bahrain", "Bangladesh", "Barbados", "Belarus", "Belgium", "Belize", "Benin", "Bhutan", "Bolivia", "Bosnia and Herzegovina", "Botswana", "Brazil", "Brunei", "Bulgaria", "Burkina Faso", "Burundi", "Cabo Verde", "Cambodia", "Cameroon", "Canada", "Central African Republic", "Chad", "Chile", "China", "Colombia", "Comoros", "Congo", "Costa Rica", "Croatia", "Cuba", "Cyprus", "Czech Republic", "Denmark", "Djibouti", "Dominica", "Dominican Republic", "Ecuador", "Egypt", "El Salvador", "Equatorial Guinea", "Eritrea", "Estonia", "Eswatini", "Ethiopia", "Fiji", "Finland", "France", "Gabon", "Gambia", "Georgia", "Germany", "Ghana", "Greece", "Grenada", "Guatemala", "Guinea", "Guyana", "Haiti", "Honduras", "Hungary", "Iceland", "India", "Indonesia", "Iran", "Iraq", "Ireland", "Israel", "Italy", "Jamaica", "Japan", "Jordan", "Kazakhstan", "Kenya", "Kiribati", "Korea, North", "Korea, South", "Kosovo", "Kuwait", "Kyrgyzstan", "Laos", "Latvia", "Lebanon", "Lesotho", "Liberia", "Libya", "Liechtenstein", "Lithuania", "Luxembourg", "Madagascar", "Malawi", "Malaysia", "Maldives", "Mali", "Malta", "Marshall Islands", "Mauritania", "Mauritius", "Mexico", "Micronesia", "Moldova", "Monaco", "Mongolia", "Montenegro", "Morocco", "Mozambique", "Myanmar", "Namibia", "Nauru", "Nepal", "Netherlands", "New Zealand", "Nicaragua", "Niger", "Nigeria", "North Macedonia", "Norway", "Oman", "Pakistan", "Palau", "Palestine", "Panama", "Papua New Guinea", "Paraguay", "Peru", "Philippines", "Poland", "Portugal", "Qatar", "Romania", "Russia", "Rwanda", "Saint Kitts and Nevis", "Saint Lucia", "Samoa", "San Marino", "Saudi Arabia", "Senegal", "Serbia", "Seychelles", "Sierra Leone", "Singapore", "Slovakia", "Slovenia", "Solomon Islands", "Somalia", "South Africa", "Spain", "Sri Lanka", "Sudan", "Suriname", "Sweden", "Switzerland", "Syria", "Taiwan", "Tajikistan", "Tanzania", "Thailand", "Timor-Leste", "Togo", "Tonga", "Trinidad and Tobago", "Tunisia", "Turkey", "Turkmenistan", "Tuvalu", "Uganda", "Ukraine", "United Arab Emirates", "United Kingdom", "United States", "Uruguay", "Uzbekistan", "Vanuatu", "Vatican City", "Venezuela", "Vietnam", "Yemen", "Zambia", "Zimbabwe"];
 
     const populateCountries = () => {
         const select = document.getElementById('userRegion');
         countries.forEach(country => {
             const opt = document.createElement('option');
-            opt.value = country;
-            opt.textContent = country;
+            opt.value = country; opt.textContent = country;
             select.appendChild(opt);
         });
     };
 
-    // Navigation System
     window.showView = (viewName) => {
         document.querySelectorAll('.view').forEach(v => v.classList.add('hidden'));
         const active = document.getElementById(`view-${viewName}`);
         if(active) active.classList.remove('hidden');
     };
 
-    // UI Updates
+    window.toggleLike = (btn) => {
+        btn.classList.add('animate-beat');
+        const icon = btn.querySelector('i');
+        const isLiked = btn.dataset.liked === 'true';
+        
+        if (!isLiked) {
+            btn.classList.replace('bg-white', 'bg-red-500');
+            btn.classList.replace('text-stone-900', 'text-white');
+            btn.dataset.liked = 'true';
+        } else {
+            btn.classList.replace('bg-red-500', 'bg-white');
+            btn.classList.replace('text-white', 'text-stone-900');
+            btn.dataset.liked = 'false';
+        }
+
+        setTimeout(() => btn.classList.remove('animate-beat'), 300);
+    };
+
+    window.openChat = (name, region, img) => {
+        document.getElementById('chat-user-name').textContent = name;
+        document.getElementById('chat-user-region').textContent = region;
+        const chatImg = document.querySelector('#chat-user-img img');
+        if (img) {
+            chatImg.src = img;
+            chatImg.classList.remove('hidden');
+        } else {
+            chatImg.classList.add('hidden');
+        }
+        document.getElementById('chat-sidebar').classList.add('open');
+    };
+
+    window.closeChat = () => {
+        document.getElementById('chat-sidebar').classList.remove('open');
+    };
+
+    const renderMembers = (users) => {
+        const grid = document.getElementById('memberGrid');
+        const noMsg = document.getElementById('no-members-msg');
+        
+        if (users.length > 0) noMsg.classList.add('hidden');
+        else noMsg.classList.remove('hidden');
+
+        // Clean up but keep the message div
+        const items = grid.querySelectorAll('.member-card');
+        items.forEach(i => i.remove());
+
+        users.forEach(u => {
+            const card = document.createElement('div');
+            card.className = "member-card group relative aspect-[3/4] rounded-[2.5rem] overflow-hidden bg-stone-200 shadow-xl cursor-pointer animate-slide";
+            
+            // Random Unsplash placeholder based on "person" to ensure they look like profiles
+            const photoUrl = `https://images.unsplash.com/photo-${u.photoId || '1500648767791-00dcc994a43e'}?auto=format&fit=crop&q=80&w=800`;
+
+            card.innerHTML = `
+                <img src="${photoUrl}" class="w-full h-full object-cover group-hover:scale-105 transition duration-700">
+                <div class="absolute inset-0 profile-gradient flex flex-col justify-end p-8 text-white">
+                    <span class="text-[10px] font-bold tracking-widest uppercase mb-2 opacity-80">Verified Member</span>
+                    <h3 class="text-2xl font-bold serif italic">${u.name}</h3>
+                    <p class="text-[10px] opacity-60 uppercase font-bold tracking-tighter">${u.region}</p>
+                </div>
+                <div class="absolute top-6 right-6 flex flex-col gap-2 opacity-0 group-hover:opacity-100 transition-all transform translate-y-4 group-hover:translate-y-0">
+                    <button onclick="openChat('${u.name}', '${u.region}', '${photoUrl}')" class="bg-white text-stone-900 p-3 rounded-full shadow-lg hover:bg-stone-100 transition"><i data-lucide="message-circle" class="w-5 h-5"></i></button>
+                    <button onclick="toggleLike(this)" data-liked="false" class="bg-white text-stone-900 p-3 rounded-full shadow-lg hover:bg-stone-100 transition"><i data-lucide="heart" class="w-5 h-5"></i></button>
+                </div>
+            `;
+            grid.appendChild(card);
+        });
+        lucide.createIcons();
+    };
+
+    const loadPortalData = () => {
+        const q = query(collection(db, 'artifacts', appId, 'public', 'data', 'users'), limit(50));
+        onSnapshot(q, (snapshot) => {
+            const users = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+            renderMembers(users);
+        }, (err) => console.error("Snapshot error:", err));
+    };
+
     const toggleLoggedInUI = (isLoggedIn, user = null) => {
         const search = document.getElementById('searchBar');
         const msgs = document.getElementById('msgBtn');
@@ -222,10 +271,11 @@
         if (isLoggedIn) {
             search.classList.remove('hidden');
             msgs.classList.remove('hidden');
-            navBtn.textContent = user.displayName?.split(' ')[0] || "PORTAL";
+            navBtn.textContent = user.displayName?.split(' ')[0].toUpperCase() || "PORTAL";
             navBtn.classList.replace('bg-stone-900', 'bg-amber-500');
             navBtn.onclick = () => showView('portal');
-            if(nameInput) nameInput.value = user.displayName;
+            if(nameInput) nameInput.value = user.displayName || "";
+            loadPortalData();
         } else {
             search.classList.add('hidden');
             msgs.classList.add('hidden');
@@ -235,38 +285,30 @@
         }
     };
 
-    // Firebase Auth
     document.getElementById('googleBtn').addEventListener('click', async () => {
-        try {
-            const provider = new GoogleAuthProvider();
-            await signInWithPopup(auth, provider);
-        } catch (err) {
-            console.error(err);
-        }
+        const provider = new GoogleAuthProvider();
+        try { await signInWithPopup(auth, provider); } catch (err) { console.error(err); }
     });
 
     onAuthStateChanged(auth, (user) => {
-        if (user) {
-            toggleLoggedInUI(true, user);
-        } else {
-            toggleLoggedInUI(false);
-        }
+        toggleLoggedInUI(!!user, user);
     });
 
-    // Form Submission
     document.getElementById('onboardingForm').addEventListener('submit', async (e) => {
         e.preventDefault();
+        const photoIds = ['1534528741775-53994a69daeb', '1507003211169-0a1dd7228f2d', '1494790108377-be9c29b29330', '1500648767791-00dcc994a43e'];
+        const randomPhoto = photoIds[Math.floor(Math.random() * photoIds.length)];
+
         try {
-            await addDoc(collection(db, 'artifacts', 'dating-bdecb', 'public', 'data', 'users'), {
+            await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'users'), {
                 name: document.getElementById('userName').value,
                 region: document.getElementById('userRegion').value,
+                photoId: randomPhoto,
                 uid: auth.currentUser?.uid || 'anonymous',
                 timestamp: new Date().toISOString()
             });
             showView('portal');
-        } catch (err) {
-            console.error(err);
-        }
+        } catch (err) { console.error(err); }
     });
 
     window.onload = () => {
