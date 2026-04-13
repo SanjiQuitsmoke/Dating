@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Synthesis | Global Matchmaking & Intercontinental Unity</title>
+    
+    <!-- SEO & Metadata -->
+    <meta name="description" content="Connect across borders. Bridging Ukraine, USA, Japan, and India through the power of The Synthesis.">
+    <meta name="google-site-verification" content="google07858e05880d269b" />
+    
+    <!-- Scripts & Styles -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;1,700&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <style>
+        :root { --gold: #d4af37; --deep-navy: #0f172a; }
+        body { font-family: 'Inter', sans-serif; background-color: #f8f7f4; color: var(--deep-navy); scroll-behavior: smooth; }
+        .serif { font-family: 'Playfair Display', serif; }
+        .glass { background: rgba(255, 255, 255, 0.03); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1); }
+        .profile-card:hover { transform: translateY(-10px); transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        .interest-tag { font-size: 0.7rem; padding: 2px 8px; border-radius: 99px; background: #e2e8f0; color: #475569; }
+        .modal-overlay { background: rgba(15, 23, 42, 0.9); backdrop-filter: blur(5px); }
+        
+        /* Custom Checkbox for Interests */
+        .interest-checkbox:checked + label {
+            background-color: #d4af37;
+            color: white;
+            border-color: #d4af37;
+        }
+    </style>
+</head>
+<body class="antialiased">
+
+<!-- ONBOARDING MODAL -->
+<div id="joinModal" class="fixed inset-0 z-[100] hidden flex items-center justify-center p-4">
+    <div class="modal-overlay absolute inset-0"></div>
+    <div class="relative bg-white w-full max-w-2xl rounded-[2.5rem] shadow-2xl overflow-hidden">
+        <div class="p-8 md:p-12">
+            <div class="flex justify-between items-start mb-8">
+                <div>
+                    <h2 class="text-3xl font-bold serif italic">Begin Your Synthesis</h2>
+                    <p class="text-stone-500 text-sm">Join the Intercontinental Matchmaking Protocol</p>
+                </div>
+                <button onclick="toggleModal()" class="text-stone-400 hover:text-stone-900"><i data-lucide="x"></i></button>
+            </div>
+            
+            <form id="onboardingForm" class="space-y-6">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <input type="text" id="userName" placeholder="Full Name" class="w-full px-6 py-3 rounded-xl border border-stone-200 focus:ring-2 focus:ring-amber-500" required>
+                    <select id="userRegion" class="w-full px-6 py-3 rounded-xl border border-stone-200 focus:ring-2 focus:ring-amber-500" required>
+                        <option value="">Origin Region</option>
+                        <option>Ukraine / NATO East</option>
+                        <option>USA / Canada</option>
+                        <option>Japan / South Korea</option>
+                        <option>India / South Asia</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold uppercase tracking-widest text-stone-400 mb-4 text-center">Interests & Cultural Bridges</label>
+                    <div class="flex flex-wrap justify-center gap-2">
+                        <input type="checkbox" id="anime" value="Anime" class="hidden interest-checkbox">
+                        <label for="anime" class="interest-tag cursor-pointer border border-stone-200 hover:border-amber-500">Anime & Manga</label>
+                        
+                        <input type="checkbox" id="scifi" value="Sci-Fi" class="hidden interest-checkbox">
+                        <label for="scifi" class="interest-tag cursor-pointer border border-stone-200 hover:border-amber-500">Sci-Fi Cinema</label>
+                        
+                        <input type="checkbox" id="ai" value="Tech" class="hidden interest-checkbox">
+                        <label for="ai" class="interest-tag cursor-pointer border border-stone-200 hover:border-amber-500">Future Tech</label>
+
+                        <input type="checkbox" id="bollywood" value="Movies" class="hidden interest-checkbox">
+                        <label for="bollywood" class="interest-tag cursor-pointer border border-stone-200 hover:border-amber-500">Global Movies</label>
+                    </div>
+                </div>
+
+                <button type="submit" class="w-full py-4 bg-stone-900 text-white rounded-2xl font-bold hover:bg-amber-600 transition shadow-lg">CREATE PROFILE</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- NAVIGATION -->
+<nav class="fixed w-full z-50 glass text-white px-8 py-4 flex justify-between items-center transition-all duration-300">
+    <div class="text-2xl font-bold serif italic tracking-tighter">The Synthesis.</div>
+    <div class="flex items-center space-x-6">
+        <button onclick="toggleModal()" class="bg-amber-600 px-6 py-2 rounded-full text-sm font-bold hover:bg-amber-500 transition shadow-lg">JOIN NOW</button>
+    </div>
+</nav>
+
+<!-- HERO -->
+<section class="relative h-screen flex items-center justify-center overflow-hidden bg-stone-900 text-center px-6">
+    <div class="absolute inset-0 bg-gradient-to-b from-blue-900/40 to-stone-900 z-10"></div>
+    <img src="https://images.unsplash.com/photo-1524850011238-e3d235c7d4c9?auto=format&fit=crop&q=80&w=2000" class="absolute inset-0 w-full h-full object-cover opacity-60">
+    <div class="relative z-20 max-w-5xl">
+        <h1 class="text-6xl md:text-9xl font-bold text-white mb-8 serif italic">Borders are <span class="text-amber-500">Ancient Code.</span></h1>
+        <p class="text-xl text-stone-300 mb-12 max-w-2xl mx-auto">Connect with high-value hearts in Ukraine, USA, Japan, and India. <span class="italic text-amber-200">The first intercontinental bridge based on intellect.</span></p>
+        <button onclick="toggleModal()" class="bg-white text-stone-900 px-12 py-4 rounded-full font-bold hover:scale-105 transition shadow-2xl">Create Your Entry</button>
+    </div>
+</section>
+
+<!-- FEED -->
+<section id="discovery" class="py-24 px-6 max-w-7xl mx-auto">
+    <h2 class="text-4xl serif font-bold mb-12 text-center">Global Discovery</h2>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+        <!-- Mock Profile -->
+        <div class="profile-card bg-white rounded-[2rem] overflow-hidden shadow-xl border border-stone-100 p-6">
+            <img src="https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&q=80&w=600" class="w-full h-64 object-cover rounded-2xl mb-6">
+            <h3 class="text-xl font-bold mb-2">Olena, 24 • 🇺🇦 Ukraine</h3>
+            <p class="text-stone-500 text-sm mb-4">Seeking an intellectual match in the USA or Japan. Loves Studio Ghibli.</p>
+            <div class="flex gap-2">
+                <span class="interest-tag">Anime</span>
+                <span class="interest-tag">Philosophy</span>
+            </div>
+        </div>
+        <!-- Add More Cards Here -->
+    </div>
+</section>
+
+<script>
+    lucide.createIcons();
+    function toggleModal() {
+        const modal = document.getElementById('joinModal');
+        modal.classList.toggle('hidden');
+    }
+</script>
+
+<!-- FIREBASE CONNECTION (Placeholder) -->
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+    import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+    // PASTE YOUR FIREBASE CONFIG OBJECT BELOW
+    const firebaseConfig = {
+        apiKey: "", // Add yours
+        authDomain: "the-synthesis-match.firebaseapp.com",
+        projectId: "the-synthesis-match"
+    };
+
+    // Initialize Connection (Only if Config exists)
+    if (firebaseConfig.apiKey) {
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        document.getElementById('onboardingForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const name = document.getElementById('userName').value;
+            const region = document.getElementById('userRegion').value;
+            
+            try {
+                // This is where data is saved to the cloud!
+                await addDoc(collection(db, "applications"), {
+                    name: name,
+                    region: region,
+                    timestamp: new Date()
+                });
+                alert("Success! Your Synthesis ID is being generated.");
+                toggleModal();
+            } catch (err) {
+                console.error("Firebase Error:", err);
+                alert("Please add your Firebase API key to the code first.");
+            }
+        });
+    }
+</script>
+
+</body>
+</html>
