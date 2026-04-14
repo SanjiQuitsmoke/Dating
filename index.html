@@ -196,69 +196,69 @@
     const btnContent = document.getElementById('googleBtnContent');
     const btnLoading = document.getElementById('googleBtnLoading');
     
-    // 1. UI Loading State
+    // 1. Show loading state
     btnContent.classList.add('hidden');
     btnLoading.classList.remove('hidden');
 
     const provider = new GoogleAuthProvider();
-    
+    let detectedLocation = "Location Not Shared";
+
+    // 2. Try to get Location FIRST
     try {
-        // 2. Trigger Google Auth
+        const position = await new Promise((resolve, reject) => {
+            navigator.geolocation.getCurrentPosition(resolve, reject, { 
+                timeout: 5000, 
+                enableHighAccuracy: false 
+            });
+        });
+
+        const lat = position.coords.latitude;
+        const lon = position.coords.longitude;
+        const geoApiUrl = `https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${lat}&longitude=${lon}&localityLanguage=en`;
+        
+        const geoResponse = await fetch(geoApiUrl);
+        const geoData = await geoResponse.json();
+        
+        // This builds the "City, State, Country" string
+        detectedLocation = `${geoData.city || ''}, ${geoData.principalSubdivision || ''}, ${geoData.countryName || ''}`.replace(/^, |, $/g, '');
+        
+    } catch (geoErr) {
+        // If they click 'Block' or 'Deny', the login STILL continues
+        console.warn("Location denied. Proceeding with login only.");
+        alert("Location access denied. Your profile will show 'Location Not Shared'.");
+    }
+
+    // 3. Trigger Google Login
+    try {
         const result = await signInWithPopup(auth, provider);
         const user = result.user;
 
-        // 3. Automatically Fetch Location (City, State, Country)
-        let detectedLocation = "Verified Explorer";
-        
-        try {
-            // Get raw coordinates from browser
-            const position = await new Promise((resolve, reject) => {
-                navigator.geolocation.getCurrentPosition(resolve, reject, { timeout: 8000 });
-            });
-
-            const lat = position.coords.latitude;
-            const lon = position.coords.longitude;
-
-            // Convert coordinates to City/State/Country names
-            const geoApiUrl = `https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${lat}&longitude=${lon}&localityLanguage=en`;
-            
-            const geoResponse = await fetch(geoApiUrl);
-            const geoData = await geoResponse.json();
-            
-            // Format: "Gurugram, Haryana, India"
-            // Note: principalSubdivision is the 'State'
-            if (geoData.city && geoData.principalSubdivision && geoData.countryName) {
-                detectedLocation = `${geoData.city}, ${geoData.principalSubdivision}, ${geoData.countryName}`;
-            } else if (geoData.locality) {
-                detectedLocation = `${geoData.locality}, ${geoData.countryName}`;
-            }
-
-        } catch (geoErr) {
-            console.warn("Location permission denied. Using default label.");
-            detectedLocation = "Verified (Location Hidden)";
-        }
-
-        // 4. Create/Update the User Profile in Firestore
         const userData = {
             name: user.displayName,
             email: user.email,
-            photoUrl: user.photoURL, // Takes your Google Profile Picture
+            photoUrl: user.photoURL,
             uid: user.uid,
-            region: detectedLocation, // Saves the City, State, Country
+            region: detectedLocation, // This will be the city or the 'Not Shared' text
             lastSync: new Date().toISOString()
         };
 
-        // Save to your database path
+        // Save to Firebase
         await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'users', user.uid), userData, { merge: true });
         
-        // 5. Redirect to the main Portal
+        // Success - Go to portal
         showView('portal');
 
     } catch (err) {
-        console.error("Critical Auth Error:", err);
+        console.error("Login Error:", err);
         btnContent.classList.remove('hidden');
         btnLoading.classList.add('hidden');
-        alert("Verification failed. Please ensure you allow location access.");
+
+        // This prevents the 'Invalid Action' screen by catching the error here
+        if (err.code === 'auth/popup-blocked') {
+            alert("Popup blocked! Please allow popups for this site to log in.");
+        } else {
+            alert("Sign-in failed. Please check your internet or site permissions.");
+        }
     }
 });
     onAuthStateChanged(auth, (user) => {
